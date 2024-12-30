@@ -7,6 +7,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_file_picker/form_builder_file_picker.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../blocs/admin_product/admin_product_form_bloc.dart';
 
@@ -43,7 +44,7 @@ class _AdminNewProductFormState extends State<AdminNewProductForm> {
       listener: (context, state) {
         if (state is AdminNewProductUploadSuccessState) {
           showToast('Product added successfully', context: context);
-          Navigator.pushNamed(context, MyAppRouteConstants.adminProductsPage);
+          GoRouter.of(context).pushNamed(MyAppRouteConstants.adminProductsPage);
         } else if (state is AdminNewProductUploadErrorState) {
           showToast(state.errorMessage, context: context);
         }

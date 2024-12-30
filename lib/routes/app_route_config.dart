@@ -10,7 +10,10 @@ import 'package:e_commerce_application/presentation/ui/signup.dart';
 import 'package:e_commerce_application/presentation/ui/wrapper.dart';
 import 'package:e_commerce_application/routes/app_route_const.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
+import '../presentation/blocs/admin_product/admin_product_form_bloc.dart';
 
 class MyAppRouter {
   static GoRouter router = GoRouter(
@@ -41,7 +44,17 @@ class MyAppRouter {
           path: '/adminLanding',
           name: MyAppRouteConstants.adminLandingPage,
           builder: (BuildContext context, GoRouterState state) {
-            return AdminLandinPage();
+            final adminProductFormBloc = state.extra as AdminProductFormBloc?;
+            if (adminProductFormBloc == null) {
+              throw Exception(
+                  'AdminProductFormBloc is required for this route');
+            }
+            return BlocProvider<AdminProductFormBloc>.value(
+              value: adminProductFormBloc,
+              child: AdminLandinPage(
+                adminProductFormBloc: adminProductFormBloc,
+              ),
+            );
           }),
       GoRoute(
           path: '/adminHome',
@@ -71,7 +84,15 @@ class MyAppRouter {
           path: '/adminProductForm',
           name: MyAppRouteConstants.adminNewProductForm,
           builder: (BuildContext context, GoRouterState state) {
-            return AdminNewProductForm();
+            final adminProductFormBloc = state.extra as AdminProductFormBloc?;
+            if (adminProductFormBloc == null) {
+              throw Exception(
+                  'AdminProductFormBloc is required for this route');
+            }
+            return BlocProvider<AdminProductFormBloc>.value(
+              value: adminProductFormBloc,
+              child: AdminNewProductForm(),
+            );
           }),
     ],
   );
