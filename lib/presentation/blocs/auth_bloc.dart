@@ -178,6 +178,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   FutureOr<void> authAdminLoginEvent(
       AuthAdminLoginEvent event, Emitter<AuthState> emit) async {
     emit(AuthAdminLoginLoadingState());
+    if (event.email.isEmpty && event.password.isEmpty) {
+      emit(AuthLoginErrorActionState(
+          message: 'Email and password cannot be empty'));
+      return;
+    }
+    if (event.email.isEmpty) {
+      emit(AuthLoginErrorActionState(message: 'Email cannot be empty'));
+      return;
+    }
+    if (event.password.isEmpty) {
+      emit(AuthLoginErrorActionState(message: 'Password cannot be empty'));
+      return;
+    }
     try {
       final adminQuerySnapshot = await _firestore
           .collection('admin')
@@ -193,7 +206,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
                   email: event.email, password: event.password);
           if (userCredential.user != null) {
             print('admin loggeddin');
-            emit(AuthAdminLoginSuccessState());
+            emit(AuthAdminLoginSuccessState(user: userCredential.user));
           } else {
             emit(AuthAdminLoginErrorState(message: 'Failed to login as admin'));
           }
@@ -204,9 +217,34 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(AuthAdminLoginErrorState(message: 'Admin not found'));
       }
     } on FirebaseAuthException catch (e) {
-      print('${e.phoneNumber}');
-      emit(AuthAdminLoginErrorState(
-          message: 'FirebaseAuth error: ${e.message}'));
+      String errorLoginMessage;
+      switch (e.code) {
+        case 'invalid-email':
+          errorLoginMessage = 'The email address is badly formatted';
+          break;
+        case 'user-disabled':
+          errorLoginMessage = 'This account has been disabled.';
+          break;
+        case 'user-not-found':
+          errorLoginMessage = 'No account found with this email.';
+          break;
+        case 'invalid-credential':
+          errorLoginMessage = 'Invalid credentials';
+          break;
+        case 'too-many-requests':
+          errorLoginMessage = 'Too many failed attempts. Try again later.';
+          break;
+        case 'network-request-failed':
+          errorLoginMessage = 'Check your internet connection.';
+          break;
+        case 'operation-not-allowed':
+          errorLoginMessage = 'Login is not allowed. Contact support.';
+          break;
+        default:
+          errorLoginMessage = 'An unknown error occurred. Please try again.';
+          print(e.code);
+      }
+      emit(AuthAdminLoginErrorState(message: errorLoginMessage));
     } catch (e) {
       emit(AuthAdminLoginErrorState(message: 'Error occured: ${e.toString()}'));
     }
