@@ -72,7 +72,7 @@ class _AdminProductsPageState extends State<AdminProductsPage> {
                     crossAxisCount: 2,
                     crossAxisSpacing: 10.0,
                     mainAxisSpacing: 10.0,
-                    childAspectRatio: 0.6),
+                    childAspectRatio: 1 / 2.21),
                 itemCount: products.length,
                 itemBuilder: (context, index) {
                   final product = products[index];
@@ -88,8 +88,7 @@ class _AdminProductsPageState extends State<AdminProductsPage> {
                   return Card(
                     elevation: 4,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)
-                    ),
+                        borderRadius: BorderRadius.circular(10)),
                     child: Padding(
                       padding: const EdgeInsets.all(20.0),
                       child: Column(
@@ -99,29 +98,28 @@ class _AdminProductsPageState extends State<AdminProductsPage> {
                           Text(
                             productName.toString().toUpperCase(),
                             style: const TextStyle(
-                              fontSize: 16.0,
-                            ),
+                                fontSize: 18.0, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(
                             height: 5.0,
                           ),
                           productImages.isNotEmpty
                               ? AspectRatio(
-                                aspectRatio: 1,
-                                child: Image.network(
+                                  aspectRatio: 1,
+                                  child: Image.network(
                                     productImages[0],
                                     fit: BoxFit.cover,
                                     width: 200,
                                     height: 200,
                                   ),
-                              )
+                                )
                               : const Icon(Icons.image_not_supported),
                           const SizedBox(
                             height: 10.0,
                           ),
                           Text(
                             "Rs: $productPrice",
-                            style: const TextStyle(fontSize: 15),
+                            style: const TextStyle(fontSize: 18),
                           ),
                           const SizedBox(
                             height: 5.0,
@@ -134,6 +132,82 @@ class _AdminProductsPageState extends State<AdminProductsPage> {
                             "Description: $productDesc",
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Column(
+                            children: [
+                              SizedBox(
+                                height: 30,
+                                width: 300,
+                                child: ElevatedButton(
+                                  onPressed: () {},
+                                  style: ButtonStyle(
+                                    padding: WidgetStateProperty.all(
+                                        EdgeInsets.zero),
+                                    iconColor:
+                                        WidgetStateProperty.all(Colors.black),
+                                    side: WidgetStateProperty.all(
+                                      const BorderSide(color: Colors.black),
+                                    ),
+                                  ),
+                                  child: const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'Edit',
+                                        style: TextStyle(
+                                            color: Colors.black, fontSize: 15),
+                                      ),
+                                      SizedBox(width: 8),
+                                      Icon(
+                                        Icons.edit,
+                                        color: Colors.black,
+                                        size: 20,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              SizedBox(
+                                height: 30,
+                                width: 300,
+                                child: ElevatedButton(
+                                  onPressed: () {},
+                                  style: ButtonStyle(
+                                    padding: WidgetStateProperty.all(
+                                        EdgeInsets.zero),
+                                    iconColor: WidgetStateProperty.all(
+                                        Colors.red.shade900),
+                                    side: WidgetStateProperty.all(
+                                      BorderSide(
+                                        color: Colors.red.shade900,
+                                      ),
+                                    ),
+                                  ),
+                                  child:  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'Delete',
+                                        style: TextStyle(
+                                            color: Colors.red.shade900, fontSize: 15),
+                                      ),
+                                      SizedBox(width: 8),
+                                      Icon(
+                                        Icons.delete,
+                                        color: Colors.red.shade900,
+                                        size: 20,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
