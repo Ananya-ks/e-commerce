@@ -26,10 +26,12 @@ class AdminProductFormBloc
     emit(AdminNewProductUploadLoadingState());
     try {
       final SupabaseClient supabaseClient = Supabase.instance.client;
-
+      final String uniqueBatchId =
+          DateTime.now().millisecondsSinceEpoch.toString();
       List<String> imageUrls = [];
-      for (File image in event.productImages) {
-        final filename = '${DateTime.now().millisecondsSinceEpoch}.jpg';
+      for (int i = 0; i < event.productImages.length; i++) {
+        final File image = event.productImages[i];
+        final filename = 'image_${uniqueBatchId}_$i.jpg';
         final filepath = 'product-image/$filename';
         await supabaseClient.storage
             .from('product-image')
@@ -37,22 +39,20 @@ class AdminProductFormBloc
         final imageUrl =
             supabaseClient.storage.from('product-image').getPublicUrl(filepath);
         imageUrls.add(imageUrl);
-
-        CollectionReference collRef = FirebaseFirestore.instance
-            .collection('admin')
-            .doc(adminEmail)
-            .collection('product');
-        await collRef.add({
-          'product_name': event.productName,
-          'product_price': event.productPrice,
-          'product_quantity': event.productQuantity,
-          'product_desc': event.productDescription,
-          'product_urls': imageUrls,
-          'created-at': FieldValue.serverTimestamp(),
-        });
-
-        emit(AdminNewProductUploadSuccessState());
       }
+      CollectionReference collRef = FirebaseFirestore.instance
+          .collection('admin')
+          .doc(adminEmail)
+          .collection('product');
+      await collRef.add({
+        'product_name': event.productName,
+        'product_price': event.productPrice,
+        'product_quantity': event.productQuantity,
+        'product_desc': event.productDescription,
+        'product_urls': imageUrls,
+        'created-at': FieldValue.serverTimestamp(),
+      });
+      emit(AdminNewProductUploadSuccessState());
     } catch (e) {
       emit(AdminNewProductUploadErrorState(errorMessage: e.toString()));
     }

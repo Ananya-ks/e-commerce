@@ -21,9 +21,6 @@ class _AdminProductsPageState extends State<AdminProductsPage> {
           .doc(adminEmail)
           .collection('product')
           .get();
-      print(querySnapshot.docs
-          .map((doc) => doc.data() as Map<String, dynamic>)
-          .toList());
       return querySnapshot.docs
           .map((doc) => doc.data() as Map<String, dynamic>)
           .toList();
