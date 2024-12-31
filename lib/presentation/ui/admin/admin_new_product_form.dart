@@ -54,7 +54,7 @@ class _AdminNewProductFormState extends State<AdminNewProductForm> {
             extra: AdminProductFormBloc(
                 firestore: FirebaseFirestore.instance,
                 adminEmail:
-                    'ananya.ks@calibraint.com'), // Provide a new instance if needed.
+                    'ananya.ks@calibraint.com'),
           );
           // GoRouter.of(context).pushNamed(MyAppRouteConstants.adminLandingPage);
         } else if (state is AdminNewProductUploadErrorState) {
@@ -96,7 +96,8 @@ class _AdminNewProductFormState extends State<AdminNewProductForm> {
                                       width: 1.5))),
                           validator: FormBuilderValidators.compose([
                             FormBuilderValidators.required(),
-                            FormBuilderValidators.minLength(3)
+                            FormBuilderValidators.minLength(3),
+                            FormBuilderValidators.maxLength(15),
                           ]),
                         ),
                         const SizedBox(
@@ -227,7 +228,7 @@ class _AdminNewProductFormState extends State<AdminNewProductForm> {
                                     },
                                     child: const Text('Upload image'))),
                           ],
-                          // validator: FormBuilderValidators.required(),
+                          validator: FormBuilderValidators.required(),
                         ),
 
                         _filePickerResult != null &&

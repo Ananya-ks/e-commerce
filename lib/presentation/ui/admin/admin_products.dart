@@ -14,6 +14,7 @@ class AdminProductsPage extends StatefulWidget {
 }
 
 class _AdminProductsPageState extends State<AdminProductsPage> {
+  //_fetchProducts returns List of Map. It contains key value pair
   Future<List<Map<String, dynamic>>> _fetchProducts(String adminEmail) async {
     try {
       final querySnapshot = await FirebaseFirestore.instance
@@ -21,9 +22,7 @@ class _AdminProductsPageState extends State<AdminProductsPage> {
           .doc(adminEmail)
           .collection('product')
           .get();
-      return querySnapshot.docs
-          .map((doc) => doc.data() as Map<String, dynamic>)
-          .toList();
+      return querySnapshot.docs.map((doc) => doc.data()).toList();
     } catch (e) {
       debugPrint("Error fetching products: $e");
       return [];
@@ -57,48 +56,92 @@ class _AdminProductsPageState extends State<AdminProductsPage> {
           }
 
           final products = snapshot.data ?? [];
+
           if (products.isEmpty) {
             return const Center(child: Text('No products found.'));
           }
 
-          return ListView.builder(
-            itemCount: products.length,
-            itemBuilder: (context, index) {
-              final product = products[index];
-              final productName = product['product_name'] ?? 'Unknown';
-              final productPrice = product['product_price'] ?? '0';
-              final productQuantity = product['product_quantity'] ?? '0';
-              final productDesc = product['product_desc'] ?? 'No description';
-              final productImages = (product['product_urls'] != null &&
-                      product['product_urls'] is List)
-                  ? List<String>.from(product['product_urls'])
-                  : [];
-              return Card(
-                child: ListTile(
-                  title: Text(productName),
-                  leading: productImages.isNotEmpty
-                      ? Image.network(
-                          productImages[0],
-                          fit: BoxFit.cover,
-                          width: 50,
-                          height: 50,
-                        )
-                      : const Icon(Icons.image_not_supported),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("Price: $productPrice"),
-                      Text("Quantity: $productQuantity"),
-                      Text(
-                        "Description: $productDesc",
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('Products'),
+            ),
+            body: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 10.0,
+                    mainAxisSpacing: 10.0,
+                    childAspectRatio: 0.6),
+                itemCount: products.length,
+                itemBuilder: (context, index) {
+                  final product = products[index];
+                  final productName = product['product_name'] ?? 'Unknown';
+                  final productPrice = product['product_price'] ?? '0';
+                  final productQuantity = product['product_quantity'] ?? '0';
+                  final productDesc =
+                      product['product_desc'] ?? 'No description';
+                  final productImages = (product['product_urls'] != null &&
+                          product['product_urls'] is List)
+                      ? List<String>.from(product['product_urls'])
+                      : [];
+                  return Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            productName.toString().toUpperCase(),
+                            style: const TextStyle(
+                              fontSize: 16.0,
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 5.0,
+                          ),
+                          productImages.isNotEmpty
+                              ? AspectRatio(
+                                aspectRatio: 1,
+                                child: Image.network(
+                                    productImages[0],
+                                    fit: BoxFit.cover,
+                                    width: 200,
+                                    height: 200,
+                                  ),
+                              )
+                              : const Icon(Icons.image_not_supported),
+                          const SizedBox(
+                            height: 10.0,
+                          ),
+                          Text(
+                            "Rs: $productPrice",
+                            style: const TextStyle(fontSize: 15),
+                          ),
+                          const SizedBox(
+                            height: 5.0,
+                          ),
+                          Text("Quantity: $productQuantity"),
+                          const SizedBox(
+                            height: 5.0,
+                          ),
+                          Text(
+                            "Description: $productDesc",
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-              );
-            },
+                    ),
+                  );
+                },
+              ),
+            ),
           );
         },
       ),
