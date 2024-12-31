@@ -9,6 +9,7 @@ class AdminNewProductUploadLoadingState extends AdminProductFormState {}
 
 class AdminNewProductUploadSuccessState extends AdminProductFormState {}
 
+// ignore: must_be_immutable
 class AdminNewProductUploadErrorState extends AdminProductFormState {
   String errorMessage;
   AdminNewProductUploadErrorState({required this.errorMessage});

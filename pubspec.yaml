@@ -43,6 +43,9 @@ dependencies:
   form_builder_validators: ^11.0.0
   form_builder_file_picker: ^4.2.0
   flutter_styled_toast: ^2.2.1
+  firebase_storage: ^12.3.7
+  supabase_flutter: ^2.8.2
+  firebase_database: ^11.2.0
 
 
 

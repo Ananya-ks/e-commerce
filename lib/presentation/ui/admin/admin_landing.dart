@@ -22,7 +22,6 @@ class AdminLandinPage extends StatefulWidget {
 class _AdminLandinPageState extends State<AdminLandinPage> {
   AuthService authService = AuthService();
   int _selectedIndex = 0;
-
   void _onTabChange(int index) {
     setState(() {
       _selectedIndex = index;
@@ -31,13 +30,16 @@ class _AdminLandinPageState extends State<AdminLandinPage> {
 
   @override
   Widget build(BuildContext context) {
+    String adminEmail = widget.adminProductFormBloc.adminEmail;
     final List<Widget> _pages = [
       AdminHomePage(),
 
       //use AdminFormBloc in AdminProductsPage
       BlocProvider.value(
         value: widget.adminProductFormBloc,
-        child: const AdminProductsPage(),
+        child: AdminProductsPage(
+          adminEmail: adminEmail,
+        ),
       ),
       // AdminProductsPage(),
 

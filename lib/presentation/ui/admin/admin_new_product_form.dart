@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_commerce_application/routes/app_route_const.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -28,11 +29,15 @@ class _AdminNewProductFormState extends State<AdminNewProductForm> {
 
   void _uploadProduct() {
     final bloc = BlocProvider.of<AdminProductFormBloc>(context);
+    final List<File> productImageUrls = _filePickerResult != null
+        ? _filePickerResult!.files.map((file) => File(file.path!)).toList()
+        : [];
     bloc.add(
       AdminNewProductUploadButtonClickEvent(
         productName: productNamecontroller.text,
         productPrice: double.parse(pricecontroller.text),
         productQuantity: int.parse(quantitycontroller.text),
+        productImages: productImageUrls,
         productDescription: productDescriptioncontroller.text,
       ),
     );
@@ -44,7 +49,14 @@ class _AdminNewProductFormState extends State<AdminNewProductForm> {
       listener: (context, state) {
         if (state is AdminNewProductUploadSuccessState) {
           showToast('Product added successfully', context: context);
-          GoRouter.of(context).pushNamed(MyAppRouteConstants.adminProductsPage);
+          context.pushNamed(
+            MyAppRouteConstants.adminLandingPage,
+            extra: AdminProductFormBloc(
+                firestore: FirebaseFirestore.instance,
+                adminEmail:
+                    'ananya.ks@calibraint.com'), // Provide a new instance if needed.
+          );
+          // GoRouter.of(context).pushNamed(MyAppRouteConstants.adminLandingPage);
         } else if (state is AdminNewProductUploadErrorState) {
           showToast(state.errorMessage, context: context);
         }
@@ -171,7 +183,7 @@ class _AdminNewProductFormState extends State<AdminNewProductForm> {
                                       width: 1.5))),
                           validator: FormBuilderValidators.compose([
                             FormBuilderValidators.required(),
-                            FormBuilderValidators.minLength(20)
+                            FormBuilderValidators.minLength(5)
                           ]),
                         ),
                         const SizedBox(
@@ -215,7 +227,7 @@ class _AdminNewProductFormState extends State<AdminNewProductForm> {
                                     },
                                     child: const Text('Upload image'))),
                           ],
-                          // validator: FormBuilderValidator  s.required(),
+                          // validator: FormBuilderValidators.required(),
                         ),
 
                         _filePickerResult != null &&

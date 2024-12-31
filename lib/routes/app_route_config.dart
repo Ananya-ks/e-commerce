@@ -72,7 +72,7 @@ class MyAppRouter {
           path: '/adminProducts',
           name: MyAppRouteConstants.adminProductsPage,
           builder: (BuildContext context, GoRouterState state) {
-            return AdminProductsPage();
+            return AdminProductsPage(adminEmail: '',);
           }),
       GoRoute(
           path: '/adminProfile',
