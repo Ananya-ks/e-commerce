@@ -1,4 +1,6 @@
 // import 'package:e_commerce_application/presentation/ui/landing.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:e_commerce_application/presentation/ui/admin/admin_editproduct.dart';
 import 'package:e_commerce_application/presentation/ui/admin/admin_home.dart';
 import 'package:e_commerce_application/presentation/ui/admin/admin_landing.dart';
 import 'package:e_commerce_application/presentation/ui/admin/admin_new_product_form.dart';
@@ -9,6 +11,7 @@ import 'package:e_commerce_application/presentation/ui/login.dart';
 import 'package:e_commerce_application/presentation/ui/signup.dart';
 import 'package:e_commerce_application/presentation/ui/wrapper.dart';
 import 'package:e_commerce_application/routes/app_route_const.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -72,7 +75,9 @@ class MyAppRouter {
           path: '/adminProducts',
           name: MyAppRouteConstants.adminProductsPage,
           builder: (BuildContext context, GoRouterState state) {
-            return AdminProductsPage(adminEmail: '',);
+            return AdminProductsPage(
+              adminEmail: '',
+            );
           }),
       GoRoute(
           path: '/adminProfile',
@@ -89,9 +94,36 @@ class MyAppRouter {
               throw Exception(
                   'AdminProductFormBloc is required for this route');
             }
+            final adminForm = state.extra as AdminProductFormBloc?;
+            final adminEmail = adminForm?.adminEmail;
             return BlocProvider<AdminProductFormBloc>.value(
               value: adminProductFormBloc,
-              child: AdminNewProductForm(),
+              child: AdminNewProductForm(
+                adminEmail: adminEmail,
+              ),
+            );
+          }),
+      GoRoute(
+          path: '/adminEditProductForm',
+          name: MyAppRouteConstants.adminEditProductForm,
+          builder: (BuildContext context, GoRouterState state) {
+            final extra = state.extra as Map<String, dynamic>;
+            final productName = extra['productName'] as String;
+            final productPrice = extra['productPrice'] as double;
+            final productQuantity = extra['productQuantity'] as int;
+            final productDesc = extra['productDesc'] as String;
+            final user = FirebaseAuth.instance.currentUser;
+            final adminEmail = user?.email;
+            return BlocProvider(
+              create: (_) => AdminProductFormBloc(
+                  firestore: FirebaseFirestore.instance,
+                  adminEmail: adminEmail!),
+              child: AdminEditProduct(
+                productName: productName,
+                productPrice: productPrice,
+                productQuantity: productQuantity,
+                productDesc: productDesc,
+              ),
             );
           }),
     ],

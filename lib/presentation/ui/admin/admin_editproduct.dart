@@ -1,70 +1,61 @@
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:e_commerce_application/routes/app_route_const.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_file_picker/form_builder_file_picker.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:flutter_styled_toast/flutter_styled_toast.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../blocs/admin_product/admin_product_form_bloc.dart';
 
-class AdminNewProductForm extends StatefulWidget {
-  final String? adminEmail;
-
-  const AdminNewProductForm({super.key, required this.adminEmail});
+class AdminEditProduct extends StatefulWidget {
+  const AdminEditProduct({
+    super.key,
+    required this.productName,
+    required this.productPrice,
+    required this.productQuantity,
+    required this.productDesc,
+  });
+  final String productName;
+  final double productPrice;
+  final int productQuantity;
+  final String productDesc;
 
   @override
-  State<AdminNewProductForm> createState() => _AdminNewProductFormState();
+  State<AdminEditProduct> createState() => _AdminEditProductState();
 }
 
-class _AdminNewProductFormState extends State<AdminNewProductForm> {
+class _AdminEditProductState extends State<AdminEditProduct> {
   FilePickerResult? _filePickerResult;
   final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
-  final productNamecontroller = TextEditingController();
-  final pricecontroller = TextEditingController();
-  final quantitycontroller = TextEditingController();
-  final productDescriptioncontroller = TextEditingController();
+  late TextEditingController productNamecontroller;
+  late TextEditingController pricecontroller;
+  late TextEditingController quantitycontroller;
+  late TextEditingController productDescriptioncontroller;
 
-  void _uploadProduct() {
-    final bloc = BlocProvider.of<AdminProductFormBloc>(context);
-    final List<File> productImageUrls = _filePickerResult != null
-        ? _filePickerResult!.files.map((file) => File(file.path!)).toList()
-        : [];
-    bloc.add(
-      AdminNewProductUploadButtonClickEvent(
-        productName: productNamecontroller.text,
-        productPrice: double.parse(pricecontroller.text),
-        productQuantity: int.parse(quantitycontroller.text),
-        productImages: productImageUrls,
-        productDescription: productDescriptioncontroller.text,
-      ),
-    );
+  @override
+  void initState() {
+    productNamecontroller = TextEditingController(text: widget.productName);
+    pricecontroller =
+        TextEditingController(text: (widget.productPrice).toString());
+    quantitycontroller =
+        TextEditingController(text: (widget.productQuantity).toString());
+    productDescriptioncontroller =
+        TextEditingController(text: widget.productDesc);
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    final bloc = BlocProvider.of<AdminProductFormBloc>(context);
+
     return BlocConsumer<AdminProductFormBloc, AdminProductFormState>(
-      listener: (context, state) {
-        if (state is AdminNewProductUploadSuccessState) {
-          showToast('Product added successfully', context: context);
-          context.goNamed(
-            MyAppRouteConstants.adminLandingPage,
-            extra: AdminProductFormBloc(
-                firestore: FirebaseFirestore.instance,
-                adminEmail: widget.adminEmail!),
-          );
-        } else if (state is AdminNewProductUploadErrorState) {
-          showToast(state.errorMessage, context: context);
-        }
-      },
+      bloc: bloc,
+      listener: (context, state) {},
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Add new Product'),
+            title: const Text('Edit Product'),
           ),
           body: SingleChildScrollView(
             child: Padding(
@@ -261,14 +252,12 @@ class _AdminNewProductFormState extends State<AdminNewProductForm> {
                               )
                             : const SizedBox(),
                         ElevatedButton(
-                            onPressed: _uploadProduct,
-                            child: Text('Upload Product')),
+                            onPressed: () {}, child: Text('Update Product')),
                       ],
                     ),
                   )),
             ),
           ),
-        
         );
       },
     );

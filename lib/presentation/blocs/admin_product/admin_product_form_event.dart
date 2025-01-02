@@ -19,3 +19,15 @@ class AdminNewProductUploadButtonClickEvent extends AdminProductFormEvent {
     required this.productDescription,
   });
 }
+
+// ignore: must_be_immutable
+class AdminProductDeleteButtonClickEvent extends AdminProductFormEvent {
+  String productName;
+  AdminProductDeleteButtonClickEvent({required this.productName});
+}
+
+// ignore: must_be_immutable
+class AdminNewProductEditButtonClickEvent extends AdminProductFormEvent {
+  Iterable<Map<String, dynamic>> dataList;
+  AdminNewProductEditButtonClickEvent({required this.dataList});
+}

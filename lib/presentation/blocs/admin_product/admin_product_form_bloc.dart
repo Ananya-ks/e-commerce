@@ -18,6 +18,8 @@ class AdminProductFormBloc
       : super(AdminProductFormInitial()) {
     on<AdminNewProductUploadButtonClickEvent>(
         adminNewProductUploadButtonClickEvent);
+    on<AdminProductDeleteButtonClickEvent>(adminProductDeleteButtonClickEvent);
+    on<AdminNewProductEditButtonClickEvent>(adminNewProductEditButtonClickEvent);
   }
 
   FutureOr<void> adminNewProductUploadButtonClickEvent(
@@ -44,7 +46,7 @@ class AdminProductFormBloc
           .collection('admin')
           .doc(adminEmail)
           .collection('product');
-      await collRef.add({
+      await collRef.doc(event.productName).set({
         'product_name': event.productName,
         'product_price': event.productPrice,
         'product_quantity': event.productQuantity,
@@ -56,5 +58,54 @@ class AdminProductFormBloc
     } catch (e) {
       emit(AdminNewProductUploadErrorState(errorMessage: e.toString()));
     }
+  }
+
+  FutureOr<void> adminProductDeleteButtonClickEvent(
+      AdminProductDeleteButtonClickEvent event,
+      Emitter<AdminProductFormState> emit) async {
+    emit(AdminProductDeleteLoadingState());
+    try {
+      final productCollection = await FirebaseFirestore.instance
+          .collection('admin')
+          .doc(adminEmail)
+          .collection('product')
+          .where('product_name', isEqualTo: event.productName)
+          .get();
+
+      List<String> productUrls = [];
+      for (var doc in productCollection.docs) {
+        final data = doc.data();
+        if (data.containsKey('product_urls')) {
+          List<dynamic> imageUrls = doc['product_urls'];
+          productUrls.addAll(imageUrls.map((url) => url.toString()));
+        }
+        await doc.reference.delete();
+      }
+      for (String url in productUrls) {
+        await deleteImageFromSupabase(url);
+      }
+      emit(AdminProductDeleteSuccessState());
+    } catch (e) {
+      emit(AdminProductDeleteErrorState(errorMessage: e.toString()));
+    }
+  }
+
+  deleteImageFromSupabase(String url) async {
+    try {
+      final SupabaseClient supabaseClient = Supabase.instance.client;
+      final path = Uri.parse(url)
+          .path
+          .split('/storage/v1/object/public/product-image/')
+          .last;
+      print('path is $path');
+      await supabaseClient.storage.from('product-image').remove([path]);
+      print('deleted');
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  FutureOr<void> adminNewProductEditButtonClickEvent(AdminNewProductEditButtonClickEvent event, Emitter<AdminProductFormState> emit) {
+    print(event.dataList);
   }
 }

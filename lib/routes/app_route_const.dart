@@ -8,4 +8,5 @@ class MyAppRouteConstants {
   static const String adminProductsPage = 'adminProducts';
   static const String adminProfilePage = 'adminProfile';
   static const String adminNewProductForm = 'adminProductForm';
+  static const String adminEditProductForm = 'adminEditProductForm';
 }
