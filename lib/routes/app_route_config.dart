@@ -1,4 +1,5 @@
 // import 'package:e_commerce_application/presentation/ui/landing.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_commerce_application/presentation/ui/admin/admin_editproduct.dart';
 import 'package:e_commerce_application/presentation/ui/admin/admin_home.dart';
@@ -112,6 +113,8 @@ class MyAppRouter {
             final productPrice = extra['productPrice'] as double;
             final productQuantity = extra['productQuantity'] as int;
             final productDesc = extra['productDesc'] as String;
+            final productImages = extra['productImages'] as List<dynamic>;
+            final dataList = extra['dataList'] as List<Map<String, dynamic>>;
             final user = FirebaseAuth.instance.currentUser;
             final adminEmail = user?.email;
             return BlocProvider(
@@ -123,6 +126,8 @@ class MyAppRouter {
                 productPrice: productPrice,
                 productQuantity: productQuantity,
                 productDesc: productDesc,
+                dataList: dataList,
+                productImages: productImages,
               ),
             );
           }),

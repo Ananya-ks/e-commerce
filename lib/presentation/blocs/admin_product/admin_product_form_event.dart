@@ -27,7 +27,20 @@ class AdminProductDeleteButtonClickEvent extends AdminProductFormEvent {
 }
 
 // ignore: must_be_immutable
-class AdminNewProductEditButtonClickEvent extends AdminProductFormEvent {
+class AdminProductEditButtonClickEvent extends AdminProductFormEvent {
   Iterable<Map<String, dynamic>> dataList;
-  AdminNewProductEditButtonClickEvent({required this.dataList});
+  String productName;
+  double productPrice;
+  int productQuantity;
+  List<dynamic> productImages;
+  List<File> newProductImages;
+  String productDescription;
+  AdminProductEditButtonClickEvent(
+      {required this.dataList,
+      required this.productName,
+      required this.productPrice,
+      required this.productQuantity,
+      required this.productImages,
+      required this.newProductImages,
+      required this.productDescription});
 }

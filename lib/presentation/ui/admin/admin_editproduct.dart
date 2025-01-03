@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_file_picker/form_builder_file_picker.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../blocs/admin_product/admin_product_form_bloc.dart';
 
@@ -15,11 +16,17 @@ class AdminEditProduct extends StatefulWidget {
     required this.productPrice,
     required this.productQuantity,
     required this.productDesc,
+    required this.productImages,
+    required this.dataList,
   });
   final String productName;
   final double productPrice;
   final int productQuantity;
   final String productDesc;
+  final List<dynamic> productImages;
+  // final List<dynamic> newProductImages;
+  // final List<PlatformFile> newProductImages;
+  final List<Map<String, dynamic>> dataList;
 
   @override
   State<AdminEditProduct> createState() => _AdminEditProductState();
@@ -45,13 +52,38 @@ class _AdminEditProductState extends State<AdminEditProduct> {
     super.initState();
   }
 
+  _uploadNewProduct() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      type: FileType.image,
+    );
+    if (result != null) {
+      if (result.files.length > 3) {
+        result = FilePickerResult(result.files.sublist(0, 3));
+      }
+      setState(() {
+        _filePickerResult = result;
+      });
+    } else {
+      print('No files selected');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final bloc = BlocProvider.of<AdminProductFormBloc>(context);
 
     return BlocConsumer<AdminProductFormBloc, AdminProductFormState>(
       bloc: bloc,
-      listener: (context, state) {},
+      listener: (context, state) {
+        if (state is AdminProductEditSuccessState) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('Updated')));
+        } else if (state is AdminProductEditErrorState) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(state.errorMessage)));
+        }
+      },
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
@@ -197,62 +229,76 @@ class _AdminEditProductState extends State<AdminEditProduct> {
                                     style: ElevatedButton.styleFrom(
                                         backgroundColor: Colors.brown.shade400,
                                         foregroundColor: Colors.white),
-                                    onPressed: () async {
-                                      FilePickerResult? result =
-                                          await FilePicker.platform.pickFiles(
-                                        allowMultiple: true,
-                                        type: FileType.image,
-                                      );
-                                      if (result != null) {
-                                        if (result.files.length > 3) {
-                                          result = FilePickerResult(
-                                              result.files.sublist(0, 3));
-                                        }
-                                        setState(() {
-                                          _filePickerResult = result;
-                                        });
-                                        print(
-                                            'file picked: ${_filePickerResult!.files.length}');
-                                      } else {
-                                        print('no file selected');
-                                      }
-                                    },
+                                    onPressed: _uploadNewProduct,
                                     child: const Text('Upload image'))),
                           ],
                           validator: FormBuilderValidators.required(),
                         ),
-
-                        _filePickerResult != null &&
-                                _filePickerResult!.files.isNotEmpty
-                            ? Row(
-                                children: List.generate(
-                                  _filePickerResult!.files.length,
-                                  (index) {
-                                    // Create a small container for each selected image
-                                    File file = File(
-                                        _filePickerResult!.files[index].path!);
-                                    return Padding(
-                                      padding:
-                                          const EdgeInsets.only(right: 10.0),
-                                      child: Container(
-                                        height: 50, // Set your desired height
-                                        width: 50, // Set your desired width
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          image: DecorationImage(
-                                            image: FileImage(file),
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
+                        if (_filePickerResult != null &&
+                            _filePickerResult!.files.isNotEmpty)
+                          Row(
+                            children: List.generate(
+                              _filePickerResult!.files.length,
+                              (index) {
+                                final file = _filePickerResult!.files[index];
+                                final isLocalFile =
+                                    file.path != null && file.path!.isNotEmpty;
+                                print('is it localfile or not $isLocalFile');
+                                print('file path $file');
+                                return Padding(
+                                  padding: const EdgeInsets.only(right: 10.0),
+                                  child: Container(
+                                    height: 50,
+                                    width: 50,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8),
+                                      image: DecorationImage(
+                                        image: isLocalFile
+                                            ? FileImage(File(file.path!))
+                                            : NetworkImage(file.name)
+                                                as ImageProvider,
+                                        fit: BoxFit.cover,
                                       ),
-                                    );
-                                  },
-                                ),
-                              )
-                            : const SizedBox(),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          )
+                        else if (widget.productImages.isNotEmpty)
+                          Row(
+                            children: widget.productImages.map((imageUrl) {
+                              return Padding(
+                                  padding: const EdgeInsets.only(right: 10.0),
+                                  child: Container(
+                                    height: 50,
+                                    width: 50,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8),
+                                      image: DecorationImage(
+                                        image: NetworkImage(imageUrl),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ));
+                            }).toList(),
+                          ),
+
+                        const SizedBox(height: 20),
                         ElevatedButton(
-                            onPressed: () {}, child: Text('Update Product')),
+                            onPressed: () {
+                              bloc.add(AdminProductEditButtonClickEvent(
+                                  productName: productNamecontroller.text,
+                                  productPrice: toDouble(pricecontroller.text)!,
+                                  productQuantity:
+                                      toInt(quantitycontroller.text)!,
+                                  productDescription:
+                                      productDescriptioncontroller.text,
+                                  dataList: widget.dataList,
+                                  productImages: widget.productImages,
+                                  newProductImages: []));
+                            },
+                            child: Text('Update Product')),
                       ],
                     ),
                   )),

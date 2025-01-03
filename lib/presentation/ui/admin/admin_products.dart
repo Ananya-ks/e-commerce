@@ -44,14 +44,22 @@ class _AdminProductsPageState extends State<AdminProductsPage> {
         .where('product_name', isEqualTo: productName)
         .get();
     final dataList = querySnapshot.docs.map((doc) => doc.data()).toList();
-    final bloc = BlocProvider.of<AdminProductFormBloc>(context);
-    bloc.add(AdminNewProductEditButtonClickEvent(dataList: dataList));
+    // final bloc = BlocProvider.of<AdminProductFormBloc>(context);
+    print('datalist in adminproduct form $dataList');
     if (dataList.isNotEmpty) {
       final firstProduct = dataList[0];
       final productName = firstProduct['product_name'];
       final productPrice = firstProduct['product_price'];
       final productQuantity = firstProduct['product_quantity'];
       final productDesc = firstProduct['product_desc'];
+      final productImages = firstProduct['product_urls'];
+      // bloc.add(AdminProductEditButtonClickEvent(
+      //     dataList: dataList,
+      //     productName: productName,
+      //     productPrice: productPrice,
+      //     productQuantity: productQuantity,
+      //     productDescription: productDesc,
+      //     productImages: productImages));
       context.pushNamed(
         MyAppRouteConstants.adminEditProductForm,
         extra: {
@@ -59,6 +67,9 @@ class _AdminProductsPageState extends State<AdminProductsPage> {
           'productPrice': productPrice,
           'productQuantity': productQuantity,
           'productDesc': productDesc,
+          'productImages': productImages,
+          'dataList': dataList,
+          'newProductImages': [],
         },
       );
     }
