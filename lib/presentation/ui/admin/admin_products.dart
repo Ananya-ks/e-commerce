@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:e_commerce_application/data/models/admin_product_model.dart';
 import 'package:e_commerce_application/presentation/blocs/admin_product/admin_product_form_bloc.dart';
 import 'package:e_commerce_application/routes/app_route_const.dart';
 import 'package:flutter/material.dart';
@@ -43,36 +44,43 @@ class _AdminProductsPageState extends State<AdminProductsPage> {
         .collection('product')
         .where('product_name', isEqualTo: productName)
         .get();
-    final dataList = querySnapshot.docs.map((doc) => doc.data()).toList();
-    // final bloc = BlocProvider.of<AdminProductFormBloc>(context);
-    print('datalist in adminproduct form $dataList');
-    if (dataList.isNotEmpty) {
-      final firstProduct = dataList[0];
-      final productName = firstProduct['product_name'];
-      final productPrice = firstProduct['product_price'];
-      final productQuantity = firstProduct['product_quantity'];
-      final productDesc = firstProduct['product_desc'];
-      final productImages = firstProduct['product_urls'];
-      // bloc.add(AdminProductEditButtonClickEvent(
-      //     dataList: dataList,
-      //     productName: productName,
-      //     productPrice: productPrice,
-      //     productQuantity: productQuantity,
-      //     productDescription: productDesc,
-      //     productImages: productImages));
-      context.pushNamed(
-        MyAppRouteConstants.adminEditProductForm,
-        extra: {
-          'productName': productName,
-          'productPrice': productPrice,
-          'productQuantity': productQuantity,
-          'productDesc': productDesc,
-          'productImages': productImages,
-          'dataList': dataList,
-          'newProductImages': [],
-        },
-      );
+    if (querySnapshot.docs.isNotEmpty) {
+      final doc = querySnapshot.docs.first;
+      final adminProductModel = AdminProdcutModel(
+          // createdAt: doc['created_At'],
+          productDesc: doc['product_desc'],
+          productId: doc.id,
+          productName: doc['product_name'],
+          productPrice: doc['product_price'],
+          productQuantity: doc['product_quantity'],
+          productUrls: List<String>.from(doc['product_urls']));
+      context.pushNamed(MyAppRouteConstants.adminEditProductForm, extra: {
+        'adminProductModel': adminProductModel,
+        'newProductImages': []
+      });
     }
+    // final dataList = querySnapshot.docs.map((doc) => doc.data()).toList();
+    // print('datalist in adminproduct form $dataList');
+    // if (dataList.isNotEmpty) {
+    //   final firstProduct = dataList[0];
+    //   final productName = firstProduct['product_name'];
+    //   final productPrice = firstProduct['product_price'];
+    //   final productQuantity = firstProduct['product_quantity'];
+    //   final productDesc = firstProduct['product_desc'];
+    //   final productImages = firstProduct['product_urls'];
+    //   context.pushNamed(
+    //     MyAppRouteConstants.adminEditProductForm,
+    //     extra: {
+    //       'productName': productName,
+    //       'productPrice': productPrice,
+    //       'productQuantity': productQuantity,
+    //       'productDesc': productDesc,
+    //       'productImages': productImages,
+    //       'dataList': dataList,
+    //       'newProductImages': [],
+    //     },
+    //   );
+    // }
   }
 
   @override

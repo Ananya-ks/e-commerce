@@ -1,6 +1,7 @@
 // import 'package:e_commerce_application/presentation/ui/landing.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:e_commerce_application/data/models/admin_product_model.dart';
 import 'package:e_commerce_application/presentation/ui/admin/admin_editproduct.dart';
 import 'package:e_commerce_application/presentation/ui/admin/admin_home.dart';
 import 'package:e_commerce_application/presentation/ui/admin/admin_landing.dart';
@@ -104,33 +105,64 @@ class MyAppRouter {
               ),
             );
           }),
+      // GoRoute(
+      //     path: '/adminEditProductForm',
+      //     name: MyAppRouteConstants.adminEditProductForm,
+      //     builder: (BuildContext context, GoRouterState state) {
+      //       final extra = state.extra as Map<String, dynamic>;
+      //       final productName = extra['productName'] as String;
+      //       final productPrice = extra['productPrice'] as double;
+      //       final productQuantity = extra['productQuantity'] as int;
+      //       final productDesc = extra['productDesc'] as String;
+      //       final productImages = extra['productImages'] as List<dynamic>;
+      //       final dataList = extra['dataList'] as List<Map<String, dynamic>>;
+      //       final user = FirebaseAuth.instance.currentUser;
+      //       final adminEmail = user?.email;
+      //       return BlocProvider(
+      //         create: (_) => AdminProductFormBloc(
+      //             firestore: FirebaseFirestore.instance,
+      //             adminEmail: adminEmail!),
+      //         child: AdminEditProduct(
+      //           productName: productName,
+      //           productPrice: productPrice,
+      //           productQuantity: productQuantity,
+      //           productDesc: productDesc,
+      //           dataList: dataList,
+      //           productImages: productImages,
+      //         ),
+      //       );
+      //     }),
       GoRoute(
-          path: '/adminEditProductForm',
-          name: MyAppRouteConstants.adminEditProductForm,
-          builder: (BuildContext context, GoRouterState state) {
-            final extra = state.extra as Map<String, dynamic>;
-            final productName = extra['productName'] as String;
-            final productPrice = extra['productPrice'] as double;
-            final productQuantity = extra['productQuantity'] as int;
-            final productDesc = extra['productDesc'] as String;
-            final productImages = extra['productImages'] as List<dynamic>;
-            final dataList = extra['dataList'] as List<Map<String, dynamic>>;
-            final user = FirebaseAuth.instance.currentUser;
-            final adminEmail = user?.email;
-            return BlocProvider(
-              create: (_) => AdminProductFormBloc(
-                  firestore: FirebaseFirestore.instance,
-                  adminEmail: adminEmail!),
-              child: AdminEditProduct(
-                productName: productName,
-                productPrice: productPrice,
-                productQuantity: productQuantity,
-                productDesc: productDesc,
-                dataList: dataList,
-                productImages: productImages,
-              ),
-            );
-          }),
+        path: '/adminEditProductForm',
+        name: MyAppRouteConstants.adminEditProductForm,
+        builder: (BuildContext context, GoRouterState state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          if (extra == null) {
+            throw Exception('Extra parameters are required for this route.');
+          }
+          final adminProductModel =
+              extra['adminProductModel'] as AdminProdcutModel?;
+          final newProductImages =
+              extra['newProductImages'] as List<dynamic>? ?? [];
+          final user = FirebaseAuth.instance.currentUser;
+          final adminemail = user?.email;
+          print('Extra parameters: $extra');
+
+          if (adminProductModel == null) {
+            throw Exception('Product details are missing or incomplete.');
+          }
+          return BlocProvider(
+            create: (_) => AdminProductFormBloc(
+              firestore: FirebaseFirestore.instance,
+              adminEmail: adminemail ?? '',
+            ),
+            child: AdminEditProduct(
+              adminProdcutModel: adminProductModel,
+              newProductImages: List<String>.from(newProductImages),
+            ),
+          );
+        },
+      )
     ],
   );
 }

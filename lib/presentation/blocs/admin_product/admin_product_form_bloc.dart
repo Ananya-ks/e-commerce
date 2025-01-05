@@ -1,6 +1,9 @@
+library admin_product_form_bloc;
+
 import 'dart:async';
 import 'dart:io';
 import 'package:bloc/bloc.dart';
+import '../../../data/models/admin_product_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
@@ -106,81 +109,74 @@ class AdminProductFormBloc
     }
   }
 
+
   FutureOr<void> adminProductEditButtonClickEvent(
       AdminProductEditButtonClickEvent event,
       Emitter<AdminProductFormState> emit) async {
     emit(AdminProductEditLoadingState());
     try {
-      // Get the product name from the event data
-      var productName = event.dataList.isNotEmpty
-          ? event.dataList.toList()[0]['product_name']
-          : null;
-
-      // Fetch the document snapshot from Firebase for the product
-      final docSnapshot = await FirebaseFirestore.instance
+      // delete old images from supabse
+      if (event.newProductImages.isNotEmpty) {
+        final olddb = await FirebaseFirestore.instance
+            .collection('admin')
+            .doc(adminEmail)
+            .collection('product')
+            .doc(event.adminProductModel.productId);
+        final docRef = await olddb.get();
+        final productUrls = docRef.get('product_urls');
+        await _deleteOldImageFromSupabase(productUrls);
+      }
+      //update firebase with edited product
+      AdminProdcutModel updatedProductmodel = AdminProdcutModel(
+          productDesc: event.adminProductModel.productDesc,
+          productId: event.adminProductModel.productId,
+          productName: event.adminProductModel.productName,
+          productPrice: event.adminProductModel.productPrice,
+          productQuantity: event.adminProductModel.productQuantity,
+          productUrls: event.newProductImages.isEmpty
+              ? event.adminProductModel.productUrls
+              : await _uploadNewImages(event.newProductImages));
+      await FirebaseFirestore.instance
           .collection('admin')
           .doc(adminEmail)
           .collection('product')
-          .where('product_name', isEqualTo: productName)
-          .get();
+          .doc(event.adminProductModel.productId)
+          .update(updatedProductmodel.toJson());
+    } catch (e) {}
+  }
 
-      if (docSnapshot.docs.isEmpty) {
-        emit(AdminProductEditErrorState(errorMessage: "Product not found."));
-        return;
+  _uploadNewImages(List newProductImages) async {
+    try {
+      List<String> newImageUrls = [];
+      final SupabaseClient supabaseClient = Supabase.instance.client;
+      final String uniqueBatchId =
+          DateTime.now().millisecondsSinceEpoch.toString();
+      for (int i = 0; i < newProductImages.length; i++) {
+        final File image = newProductImages[i];
+        final filename = 'image-${uniqueBatchId}_$i.jpg';
+        final filepath = 'product-image/$filename';
+        await supabaseClient.storage
+            .from('product-image')
+            .upload(filepath, image);
+        final imageUrl =
+            supabaseClient.storage.from('product-image').getPublicUrl(filepath);
+        newImageUrls.add(imageUrl);
       }
-
-      final productDocRef = docSnapshot.docs.first.reference;
-      final existingProductData = docSnapshot.docs.first.data();
-      print('Existing product ${existingProductData}');
-      // Get existing image URLs
-      final existingImageUrls =
-          List<String>.from(existingProductData['product_urls']);
-      final newImageFiles = event.newProductImages;
-      print('New images $newImageFiles');
-      List<String> updatedImageUrls = existingImageUrls;
-
-      if (newImageFiles.isNotEmpty) {
-        // If new images are selected, delete old images from Supabase
-        final supabaseStorage =
-            Supabase.instance.client.storage.from('product-image');
-        for (final imageUrl in existingImageUrls) {
-          final pathSegments = Uri.parse(imageUrl).path.split('/');
-          final filePath = pathSegments
-              .skip(pathSegments.indexOf('product-image') + 1)
-              .join('/');
-          await supabaseStorage.remove([filePath]);
-        }
-
-        // Upload new images to Supabase
-        updatedImageUrls = [];
-        for (var i = 0; i < newImageFiles.length; i++) {
-          final file = newImageFiles[i];
-          final fileName =
-              'image_${DateTime.now().millisecondsSinceEpoch}_$i.jpg';
-          final filePath = 'product-image/$fileName';
-
-          await supabaseStorage.upload(filePath, file);
-
-          // Get public URL of the uploaded image
-          final newImageUrl = supabaseStorage.getPublicUrl(filePath);
-          updatedImageUrls.add(newImageUrl);
-        }
-      }
-
-      // Update product in Firebase
-      await productDocRef.update({
-        'product_name': event.productName,
-        'product_price': event.productPrice,
-        'product_quantity': event.productQuantity,
-        'product_desc': event.productDescription,
-        'product_urls': updatedImageUrls, // Updated image URLs
-        'created-at': FieldValue.serverTimestamp(),
-      });
-
-      emit(AdminProductEditSuccessState());
+      return newImageUrls;
     } catch (e) {
-      print("Error: $e");
-      emit(AdminProductEditErrorState(errorMessage: e.toString()));
+      print(e.toString());
     }
   }
+}
+
+_deleteOldImageFromSupabase(List productUrls) async {
+  try {
+    for (var url in productUrls) {
+      final filepath =
+          url.split('/storage/v1/object/public/product-image/').last;
+      await Supabase.instance.client.storage
+          .from('product-image')
+          .remove([filepath]);
+    }
+  } catch (e) {}
 }

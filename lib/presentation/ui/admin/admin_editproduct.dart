@@ -1,32 +1,23 @@
 import 'dart:io';
 
+import 'package:e_commerce_application/data/models/admin_product_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_file_picker/form_builder_file_picker.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../blocs/admin_product/admin_product_form_bloc.dart';
 
 class AdminEditProduct extends StatefulWidget {
   const AdminEditProduct({
     super.key,
-    required this.productName,
-    required this.productPrice,
-    required this.productQuantity,
-    required this.productDesc,
-    required this.productImages,
-    required this.dataList,
+    required this.adminProdcutModel,
+    required this.newProductImages,
   });
-  final String productName;
-  final double productPrice;
-  final int productQuantity;
-  final String productDesc;
-  final List<dynamic> productImages;
-  // final List<dynamic> newProductImages;
-  // final List<PlatformFile> newProductImages;
-  final List<Map<String, dynamic>> dataList;
+
+  final AdminProdcutModel adminProdcutModel;
+  final List<dynamic> newProductImages;
 
   @override
   State<AdminEditProduct> createState() => _AdminEditProductState();
@@ -42,13 +33,14 @@ class _AdminEditProductState extends State<AdminEditProduct> {
 
   @override
   void initState() {
-    productNamecontroller = TextEditingController(text: widget.productName);
-    pricecontroller =
-        TextEditingController(text: (widget.productPrice).toString());
-    quantitycontroller =
-        TextEditingController(text: (widget.productQuantity).toString());
+    productNamecontroller =
+        TextEditingController(text: widget.adminProdcutModel.productName);
+    pricecontroller = TextEditingController(
+        text: (widget.adminProdcutModel.productPrice).toString());
+    quantitycontroller = TextEditingController(
+        text: (widget.adminProdcutModel.productQuantity).toString());
     productDescriptioncontroller =
-        TextEditingController(text: widget.productDesc);
+        TextEditingController(text: widget.adminProdcutModel.productDesc);
     super.initState();
   }
 
@@ -243,8 +235,6 @@ class _AdminEditProductState extends State<AdminEditProduct> {
                                 final file = _filePickerResult!.files[index];
                                 final isLocalFile =
                                     file.path != null && file.path!.isNotEmpty;
-                                print('is it localfile or not $isLocalFile');
-                                print('file path $file');
                                 return Padding(
                                   padding: const EdgeInsets.only(right: 10.0),
                                   child: Container(
@@ -265,9 +255,11 @@ class _AdminEditProductState extends State<AdminEditProduct> {
                               },
                             ),
                           )
-                        else if (widget.productImages.isNotEmpty)
+                        else if (widget
+                            .adminProdcutModel.productUrls.isNotEmpty)
                           Row(
-                            children: widget.productImages.map((imageUrl) {
+                            children: widget.adminProdcutModel.productUrls
+                                .map((imageUrl) {
                               return Padding(
                                   padding: const EdgeInsets.only(right: 10.0),
                                   child: Container(
@@ -288,17 +280,32 @@ class _AdminEditProductState extends State<AdminEditProduct> {
                         ElevatedButton(
                             onPressed: () {
                               bloc.add(AdminProductEditButtonClickEvent(
-                                  productName: productNamecontroller.text,
-                                  productPrice: toDouble(pricecontroller.text)!,
-                                  productQuantity:
-                                      toInt(quantitycontroller.text)!,
-                                  productDescription:
-                                      productDescriptioncontroller.text,
-                                  dataList: widget.dataList,
-                                  productImages: widget.productImages,
-                                  newProductImages: []));
+                                  adminProductModel: AdminProdcutModel(
+                                      productDesc: productDescriptioncontroller.text.isNotEmpty
+                                          ? productDescriptioncontroller.text
+                                          : widget
+                                              .adminProdcutModel.productDesc,
+                                      productId:
+                                          widget.adminProdcutModel.productId,
+                                      productName: productNamecontroller.text.isNotEmpty
+                                          ? productNamecontroller.text
+                                          : widget
+                                              .adminProdcutModel.productName,
+                                      productPrice: double.tryParse(pricecontroller.text) ??
+                                          widget.adminProdcutModel.productPrice,
+                                      productQuantity:
+                                          int.tryParse(quantitycontroller.text) ??
+                                              widget.adminProdcutModel
+                                                  .productQuantity,
+                                      productUrls:
+                                          widget.adminProdcutModel.productUrls),
+                                  newProductImages: _filePickerResult != null
+                                      ? _filePickerResult!.files
+                                          .map((file) => File(file.path!))
+                                          .toList()
+                                      : []));
                             },
-                            child: Text('Update Product')),
+                            child: const Text('Update Product')),
                       ],
                     ),
                   )),
