@@ -1,11 +1,16 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_commerce_application/data/models/admin_product_model.dart';
+import 'package:e_commerce_application/routes/app_route_const.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:form_builder_file_picker/form_builder_file_picker.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../blocs/admin_product/admin_product_form_bloc.dart';
 
@@ -69,14 +74,36 @@ class _AdminEditProductState extends State<AdminEditProduct> {
       bloc: bloc,
       listener: (context, state) {
         if (state is AdminProductEditSuccessState) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text('Updated')));
+          try {
+            Fluttertoast.showToast(
+                msg: 'Product updated',
+                backgroundColor: Colors.black,
+                gravity: ToastGravity.CENTER);
+          } catch (e) {
+            print('Error showning toats, ${e.toString()}');
+          }
+
+          final user = FirebaseAuth.instance.currentUser;
+          final adminemail = user?.email;
+          context.goNamed(
+            MyAppRouteConstants.adminLandingPage,
+            extra: AdminProductFormBloc(
+                firestore: FirebaseFirestore.instance, adminEmail: adminemail!),
+          );
         } else if (state is AdminProductEditErrorState) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(state.errorMessage)));
+          Fluttertoast.showToast(
+              msg: state.errorMessage,
+              backgroundColor: Colors.black,
+              gravity: ToastGravity.CENTER);
         }
       },
       builder: (context, state) {
+        if (state is AdminProductEditLoadingState) {
+          const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+
         return Scaffold(
           appBar: AppBar(
             title: const Text('Edit Product'),

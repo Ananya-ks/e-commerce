@@ -109,40 +109,35 @@ class AdminProductFormBloc
     }
   }
 
-
   FutureOr<void> adminProductEditButtonClickEvent(
       AdminProductEditButtonClickEvent event,
       Emitter<AdminProductFormState> emit) async {
     emit(AdminProductEditLoadingState());
     try {
-      // delete old images from supabse
+      List<dynamic> updatedProductUrls = event.adminProductModel.productUrls;
       if (event.newProductImages.isNotEmpty) {
-        final olddb = await FirebaseFirestore.instance
-            .collection('admin')
-            .doc(adminEmail)
-            .collection('product')
-            .doc(event.adminProductModel.productId);
-        final docRef = await olddb.get();
-        final productUrls = docRef.get('product_urls');
-        await _deleteOldImageFromSupabase(productUrls);
+        await _deleteOldImageFromSupabase(event.adminProductModel.productUrls);
+        updatedProductUrls = await _uploadNewImages(event.newProductImages);
       }
       //update firebase with edited product
       AdminProdcutModel updatedProductmodel = AdminProdcutModel(
-          productDesc: event.adminProductModel.productDesc,
-          productId: event.adminProductModel.productId,
-          productName: event.adminProductModel.productName,
-          productPrice: event.adminProductModel.productPrice,
-          productQuantity: event.adminProductModel.productQuantity,
-          productUrls: event.newProductImages.isEmpty
-              ? event.adminProductModel.productUrls
-              : await _uploadNewImages(event.newProductImages));
+        productDesc: event.adminProductModel.productDesc,
+        productId: event.adminProductModel.productId,
+        productName: event.adminProductModel.productName,
+        productPrice: event.adminProductModel.productPrice,
+        productQuantity: event.adminProductModel.productQuantity,
+        productUrls: updatedProductUrls,
+      );  
       await FirebaseFirestore.instance
           .collection('admin')
           .doc(adminEmail)
           .collection('product')
           .doc(event.adminProductModel.productId)
           .update(updatedProductmodel.toJson());
-    } catch (e) {}
+      emit(AdminProductEditSuccessState());
+    } catch (e) {
+      emit(AdminProductEditErrorState(errorMessage: e.toString()));
+    }
   }
 
   _uploadNewImages(List newProductImages) async {
