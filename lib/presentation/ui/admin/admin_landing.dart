@@ -8,7 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 
 import '../../blocs/admin_product/admin_product_form_bloc.dart';
-import '../../blocs/auth_bloc.dart';
+import '../../blocs/auth/auth_bloc.dart';
 
 class AdminLandinPage extends StatefulWidget {
   final AdminProductFormBloc adminProductFormBloc;
@@ -41,7 +41,6 @@ class _AdminLandinPageState extends State<AdminLandinPage> {
           adminEmail: adminEmail,
         ),
       ),
-      // AdminProductsPage(),
 
       AdminOrdersPage(),
       AdminProfilePage(),
@@ -87,18 +86,6 @@ class _AdminLandinPageState extends State<AdminLandinPage> {
               body: IndexedStack(
                 index: _selectedIndex,
                 children: _pages,
-                // children: [
-                //   AdminHomePage(),
-                //   //use AdminFormBloc in AdminProductsPage
-                //   BlocProvider(
-                //     create: (context) => AdminProductFormBloc(
-                //         firestore: FirebaseFirestore.instance,
-                //         adminEmail: adminEmail!),
-                //     child: AdminProductsPage(),
-                //   ),
-                //   AdminOrdersPage(),
-                //   AdminProfilePage(),
-                // ],
               ));
         });
   }

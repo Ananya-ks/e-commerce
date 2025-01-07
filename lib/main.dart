@@ -1,5 +1,5 @@
 import 'package:e_commerce_application/firebase_options.dart';
-import 'package:e_commerce_application/presentation/blocs/auth_bloc.dart';
+import 'package:e_commerce_application/presentation/blocs/auth/auth_bloc.dart';
 import 'package:e_commerce_application/routes/app_route_config.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';

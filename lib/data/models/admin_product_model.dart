@@ -11,7 +11,6 @@ String adminProdcutModelToJson(AdminProdcutModel data) =>
     json.encode(data.toJson());
 
 class AdminProdcutModel {
-  // CreatedAt createdAt;
   String productDesc;
   String productId;
   String productName;
@@ -20,7 +19,6 @@ class AdminProdcutModel {
   List<dynamic> productUrls;
 
   AdminProdcutModel({
-    // required this.createdAt,
     required this.productDesc,
     required this.productId,
     required this.productName,
@@ -31,7 +29,6 @@ class AdminProdcutModel {
 
   factory AdminProdcutModel.fromJson(Map<String, dynamic> json) =>
       AdminProdcutModel(
-        // createdAt: CreatedAt.fromJson(json["created_at"]),
         productDesc: json["product_desc"],
         productId: json["product_id"],
         productName: json["product_name"],
@@ -41,7 +38,6 @@ class AdminProdcutModel {
       );
 
   Map<String, dynamic> toJson() => {
-        // "created_at": createdAt.toJson(),
         "product_desc": productDesc,
         "product_id": productId,
         "product_name": productName,
@@ -51,22 +47,3 @@ class AdminProdcutModel {
       };
 }
 
-// class CreatedAt {
-//   int seconds;
-//   int nanoseconds;
-
-//   CreatedAt({
-//     required this.seconds,
-//     required this.nanoseconds,
-//   });
-
-//   factory CreatedAt.fromJson(Map<String, dynamic> json) => CreatedAt(
-//         seconds: json["_seconds"],
-//         nanoseconds: json["_nanoseconds"],
-//       );
-
-//   Map<String, dynamic> toJson() => {
-//         "_seconds": seconds,
-//         "_nanoseconds": nanoseconds,
-//       };
-// }

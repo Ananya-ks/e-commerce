@@ -34,6 +34,8 @@ class _AdminNewProductFormState extends State<AdminNewProductForm> {
     final List<File> productImageUrls = _filePickerResult != null
         ? _filePickerResult!.files.map((file) => File(file.path!)).toList()
         : [];
+    final String productId =
+        '${DateTime.now().millisecondsSinceEpoch}_${UniqueKey().toString()}';
     bloc.add(
       AdminNewProductUploadButtonClickEvent(
         productName: productNamecontroller.text,
@@ -41,6 +43,7 @@ class _AdminNewProductFormState extends State<AdminNewProductForm> {
         productQuantity: int.parse(quantitycontroller.text),
         productImages: productImageUrls,
         productDescription: productDescriptioncontroller.text,
+        productId: productId,
       ),
     );
   }
@@ -268,7 +271,6 @@ class _AdminNewProductFormState extends State<AdminNewProductForm> {
                   )),
             ),
           ),
-        
         );
       },
     );

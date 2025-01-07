@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_commerce_application/presentation/blocs/admin_product/admin_product_form_bloc.dart';
-import 'package:e_commerce_application/presentation/blocs/auth_bloc.dart';
+import 'package:e_commerce_application/presentation/blocs/auth/auth_bloc.dart';
 import 'package:e_commerce_application/presentation/ui/admin/admin_landing.dart';
 import 'package:e_commerce_application/presentation/ui/email_verification.dart';
-import 'package:e_commerce_application/presentation/ui/user.dart';
 import 'package:e_commerce_application/presentation/ui/landing.dart';
+import 'package:e_commerce_application/presentation/ui/user/user_landing.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -36,7 +36,7 @@ class _WrapperState extends State<Wrapper> {
             state is AuthLoginSuccessActionState ||
             state is AuthGoogleLoginSuccessActionState) {
           GoRouter.of(context).pushNamed(MyAppRouteConstants.wrapperRoute);
-        } 
+        }
         // else if (state is AuthAdminLoginSuccessState) {
         //   GoRouter.of(context).pushNamed(MyAppRouteConstants.adminLandingPage);
         // }
@@ -100,7 +100,7 @@ class _WrapperState extends State<Wrapper> {
                       );
                     } else if (futureSnapshot.hasError ||
                         futureSnapshot.data == false) {
-                      return UserPage();
+                      return UserLandingPage();
                     } else {
                       // if AuthAdminLoginState ie.,admin, route to AdminLandingPage with user mail and firestore instance
                       return BlocProvider(

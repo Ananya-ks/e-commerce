@@ -9,6 +9,7 @@ class AdminNewProductUploadButtonClickEvent extends AdminProductFormEvent {
   double productPrice;
   int productQuantity;
   List<File> productImages;
+  String productId;
   String productDescription;
 
   AdminNewProductUploadButtonClickEvent({
@@ -16,6 +17,7 @@ class AdminNewProductUploadButtonClickEvent extends AdminProductFormEvent {
     required this.productPrice,
     required this.productQuantity,
     required this.productImages,
+    required this.productId,
     required this.productDescription,
   });
 }

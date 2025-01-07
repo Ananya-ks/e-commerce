@@ -3,6 +3,7 @@ library admin_product_form_bloc;
 import 'dart:async';
 import 'dart:io';
 import 'package:bloc/bloc.dart';
+import 'package:e_commerce_application/data/models/gloabl_product_model.dart';
 import '../../../data/models/admin_product_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -45,21 +46,36 @@ class AdminProductFormBloc
             supabaseClient.storage.from('product-image').getPublicUrl(filepath);
         imageUrls.add(imageUrl);
       }
+      final productId = event.productId;
+      print('the productid is $productId');
       CollectionReference collRef = FirebaseFirestore.instance
           .collection('admin')
           .doc(adminEmail)
           .collection('product');
-      DocumentReference docRef = await collRef.add({
+      await collRef.doc(productId).set({
         'product_name': event.productName,
         'product_price': event.productPrice,
         'product_quantity': event.productQuantity,
         'product_desc': event.productDescription,
         'product_urls': imageUrls,
+        'product_id': productId,
         'created-at': FieldValue.serverTimestamp(),
       });
-      await docRef.update({'product_id': docRef.id});
+      CollectionReference collRefAllProds =
+          FirebaseFirestore.instance.collection('products');
+      await collRefAllProds.doc(productId).set({
+        'product_name': event.productName,
+        'product_price': event.productPrice,
+        'product_quantity': event.productQuantity,
+        'product_desc': event.productDescription,
+        'product_urls': imageUrls,
+        'product_id': productId,
+        'admin_email': adminEmail,
+      });
+
       emit(AdminNewProductUploadSuccessState());
     } catch (e) {
+      print('error is ${e.toString()}');
       emit(AdminNewProductUploadErrorState(errorMessage: e.toString()));
     }
   }
@@ -75,7 +91,12 @@ class AdminProductFormBloc
           .collection('product')
           .where('product_name', isEqualTo: event.productName)
           .get();
+      final allProdCollection = await FirebaseFirestore.instance.collection('products').where('product_name', isEqualTo: event.productName).get();
+      for(var doc in allProdCollection.docs){
+        await doc.reference.delete();
+      }
 
+      
       List<String> productUrls = [];
       for (var doc in productCollection.docs) {
         final data = doc.data();
@@ -119,21 +140,67 @@ class AdminProductFormBloc
         await _deleteOldImageFromSupabase(event.adminProductModel.productUrls);
         updatedProductUrls = await _uploadNewImages(event.newProductImages);
       }
+      print('Updated urls are $updatedProductUrls');
+      FirebaseFirestore.instance.runTransaction((transaction) async {
+        DocumentReference adminProdRef = FirebaseFirestore.instance
+            .collection('admin')
+            .doc(adminEmail)
+            .collection('product')
+            .doc(event.adminProductModel.productId);
+        print('Inside transaction Updated urls are $updatedProductUrls');
+
+        DocumentReference globalProdRef = FirebaseFirestore.instance
+            .collection('products')
+            .doc(event.adminProductModel.productId);
+
+        DocumentSnapshot adminDoc = await transaction.get(adminProdRef);
+        DocumentSnapshot globalDoc = await transaction.get(globalProdRef);
+
+        try {
+          if (!adminDoc.exists || !globalDoc.exists) {
+            print('Admin Doc: ${adminDoc.data()}');
+            print('Global Doc: ${globalDoc.data()}');
+            throw Exception('Product doesn\'t exist in any one collection');
+          }
+          AdminProdcutModel updatedProductmodel = AdminProdcutModel(
+            productDesc: event.adminProductModel.productDesc,
+            productId: event.adminProductModel.productId,
+            productName: event.adminProductModel.productName,
+            productPrice: event.adminProductModel.productPrice,
+            productQuantity: event.adminProductModel.productQuantity,
+            productUrls: updatedProductUrls,
+          );
+          print('Updated updatedProductmodel is $updatedProductmodel');
+          GlobalProductModel globalProductModel = GlobalProductModel(
+              adminEmail: adminEmail,
+              productDesc: event.adminProductModel.productDesc,
+              productId: event.adminProductModel.productId,
+              productName: event.adminProductModel.productName,
+              productPrice: event.adminProductModel.productPrice,
+              productQuantity: event.adminProductModel.productQuantity,
+              productUrls: updatedProductUrls);
+          transaction.update(adminProdRef, updatedProductmodel.toJson());
+          transaction.update(globalProdRef, globalProductModel.toJson());
+        } catch (e) {
+          print('Error: ${e.toString()}');
+        }
+      });
+
       //update firebase with edited product
-      AdminProdcutModel updatedProductmodel = AdminProdcutModel(
-        productDesc: event.adminProductModel.productDesc,
-        productId: event.adminProductModel.productId,
-        productName: event.adminProductModel.productName,
-        productPrice: event.adminProductModel.productPrice,
-        productQuantity: event.adminProductModel.productQuantity,
-        productUrls: updatedProductUrls,
-      );  
-      await FirebaseFirestore.instance
-          .collection('admin')
-          .doc(adminEmail)
-          .collection('product')
-          .doc(event.adminProductModel.productId)
-          .update(updatedProductmodel.toJson());
+      // AdminProdcutModel updatedProductmodel = AdminProdcutModel(
+      //   productDesc: event.adminProductModel.productDesc,
+      //   productId: event.adminProductModel.productId,
+      //   productName: event.adminProductModel.productName,
+      //   productPrice: event.adminProductModel.productPrice,
+      //   productQuantity: event.adminProductModel.productQuantity,
+      //   productUrls: updatedProductUrls,
+      // );
+      // await FirebaseFirestore.instance
+      //     .collection('admin')
+      //     .doc(adminEmail)
+      //     .collection('product')
+      //     .doc(event.adminProductModel.productId)
+      //     .update(updatedProductmodel.toJson());
       emit(AdminProductEditSuccessState());
     } catch (e) {
       emit(AdminProductEditErrorState(errorMessage: e.toString()));
@@ -157,6 +224,7 @@ class AdminProductFormBloc
             supabaseClient.storage.from('product-image').getPublicUrl(filepath);
         newImageUrls.add(imageUrl);
       }
+      print('New image ursl are $newImageUrls');
       return newImageUrls;
     } catch (e) {
       print(e.toString());

@@ -1,8 +1,6 @@
-// import 'package:e_commerce_application/presentation/ui/landing.dart';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_commerce_application/data/models/admin_product_model.dart';
-import 'package:e_commerce_application/presentation/ui/admin/admin_editproduct.dart';
+import 'package:e_commerce_application/presentation/ui/admin/admin_edit_product.dart';
 import 'package:e_commerce_application/presentation/ui/admin/admin_home.dart';
 import 'package:e_commerce_application/presentation/ui/admin/admin_landing.dart';
 import 'package:e_commerce_application/presentation/ui/admin/admin_new_product_form.dart';
@@ -11,6 +9,8 @@ import 'package:e_commerce_application/presentation/ui/admin/admin_products.dart
 import 'package:e_commerce_application/presentation/ui/admin/admin_profile.dart';
 import 'package:e_commerce_application/presentation/ui/login.dart';
 import 'package:e_commerce_application/presentation/ui/signup.dart';
+import 'package:e_commerce_application/presentation/ui/user/user_landing.dart';
+import 'package:e_commerce_application/presentation/ui/user/user_product_details_page.dart';
 import 'package:e_commerce_application/presentation/ui/wrapper.dart';
 import 'package:e_commerce_application/routes/app_route_const.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -105,33 +105,6 @@ class MyAppRouter {
               ),
             );
           }),
-      // GoRoute(
-      //     path: '/adminEditProductForm',
-      //     name: MyAppRouteConstants.adminEditProductForm,
-      //     builder: (BuildContext context, GoRouterState state) {
-      //       final extra = state.extra as Map<String, dynamic>;
-      //       final productName = extra['productName'] as String;
-      //       final productPrice = extra['productPrice'] as double;
-      //       final productQuantity = extra['productQuantity'] as int;
-      //       final productDesc = extra['productDesc'] as String;
-      //       final productImages = extra['productImages'] as List<dynamic>;
-      //       final dataList = extra['dataList'] as List<Map<String, dynamic>>;
-      //       final user = FirebaseAuth.instance.currentUser;
-      //       final adminEmail = user?.email;
-      //       return BlocProvider(
-      //         create: (_) => AdminProductFormBloc(
-      //             firestore: FirebaseFirestore.instance,
-      //             adminEmail: adminEmail!),
-      //         child: AdminEditProduct(
-      //           productName: productName,
-      //           productPrice: productPrice,
-      //           productQuantity: productQuantity,
-      //           productDesc: productDesc,
-      //           dataList: dataList,
-      //           productImages: productImages,
-      //         ),
-      //       );
-      //     }),
       GoRoute(
         path: '/adminEditProductForm',
         name: MyAppRouteConstants.adminEditProductForm,
@@ -162,7 +135,20 @@ class MyAppRouter {
             ),
           );
         },
-      )
+      ),
+      GoRoute(
+          path: '/userProdDetails',
+          name: MyAppRouteConstants.userProdDetails,
+          builder: (BuildContext context, GoRouterState state) {
+            final product = state.extra as Map<String, dynamic>;
+            return UserProductDetailsPage(product: product);
+          }),
+      GoRoute(
+          path: '/userlandingPage',
+          name: MyAppRouteConstants.userLandingPage,
+          builder: (BuildContext context, GoRouterState state) {
+            return UserLandingPage();
+          })
     ],
   );
 }
