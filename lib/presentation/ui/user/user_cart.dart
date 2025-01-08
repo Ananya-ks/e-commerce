@@ -15,24 +15,23 @@ class UserCart extends StatefulWidget {
 }
 
 class _UserCartState extends State<UserCart> {
-  UserCartBloc userCartBloc = UserCartBloc();
-
-  _onIncrement(String docName) {
-    userCartBloc
-        .add(UserCartQuantityIncreaseButtonClickedEvent(docId: docName));
-  }
-
-  _onDecrement(String docName) {
-    userCartBloc
-        .add(UserCartQuantityDecrementButtonClickedEvent(docId: docName));
-  }
-
-  _removeFromCart(String docName) {
-    userCartBloc.add(UserCartDeletebuttonClickedEvent(docId: docName));
-  }
-
   @override
   Widget build(BuildContext context) {
+    final userCartBloc = BlocProvider.of<UserCartBloc>(context);
+    onIncrement(String docName) {
+      userCartBloc
+          .add(UserCartQuantityIncreaseButtonClickedEvent(docId: docName));
+    }
+
+    onDecrement(String docName) {
+      userCartBloc
+          .add(UserCartQuantityDecrementButtonClickedEvent(docId: docName));
+    }
+
+    removeFromCart(String docName) {
+      userCartBloc.add(UserCartDeletebuttonClickedEvent(docId: docName));
+    }
+
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) {
       return Scaffold(
@@ -58,10 +57,14 @@ class _UserCartState extends State<UserCart> {
         }
       },
       builder: (context, state) {
+        num totalCheckoutAmt = 0;
+        print('user cart state is $state');
         if (state is UserCartDeletionLoadingState) {
           const Center(
             child: CircularProgressIndicator(),
           );
+        } else if (state is UserCartTotalCheckOutAmt) {
+          totalCheckoutAmt = state.totalCheckoutAmt;
         }
         return Scaffold(
           appBar: AppBar(
@@ -131,7 +134,7 @@ class _UserCartState extends State<UserCart> {
                                     padding:
                                         const EdgeInsets.fromLTRB(70, 0, 0, 10),
                                     child: IconButton(
-                                      onPressed: () => _removeFromCart(docName),
+                                      onPressed: () => removeFromCart(docName),
                                       icon: const Icon(Icons.close),
                                       iconSize: 20.0,
                                     ),
@@ -146,7 +149,7 @@ class _UserCartState extends State<UserCart> {
                                             shape: BoxShape.circle),
                                         child: IconButton(
                                             onPressed: () =>
-                                                _onIncrement(docName),
+                                                onIncrement(docName),
                                             icon: const Icon(Icons.add)),
                                       ),
                                       const SizedBox(
@@ -165,7 +168,7 @@ class _UserCartState extends State<UserCart> {
                                             shape: BoxShape.circle),
                                         child: IconButton(
                                             onPressed: () {
-                                              _onDecrement(docName);
+                                              onDecrement(docName);
                                             },
                                             icon: const Icon(Icons.remove)),
                                       ),
@@ -179,6 +182,30 @@ class _UserCartState extends State<UserCart> {
                       );
                     });
               }),
+          bottomNavigationBar: Container(
+            color: Colors.grey.shade100,
+            padding: const EdgeInsets.fromLTRB(0, 10, 10, 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text(
+                  '$totalCheckoutAmt',
+                  style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w900),
+                ),
+                ElevatedButton(
+                    onPressed: () {},
+                    style: ButtonStyle(
+                      fixedSize: WidgetStateProperty.all(Size(200, 50)),
+                      backgroundColor:
+                          WidgetStateProperty.all(Colors.brown.shade300),
+                    ),
+                    child: const Text(
+                      'Checkout',
+                      style: TextStyle(fontSize: 20, color: Colors.white),
+                    )),
+              ],
+            ),
+          ),
         );
       },
     );

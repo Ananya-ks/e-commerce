@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_commerce_application/data/models/admin_product_model.dart';
+import 'package:e_commerce_application/presentation/blocs/cart/user_cart_bloc.dart';
 import 'package:e_commerce_application/presentation/ui/admin/admin_edit_product.dart';
 import 'package:e_commerce_application/presentation/ui/admin/admin_home.dart';
 import 'package:e_commerce_application/presentation/ui/admin/admin_landing.dart';
@@ -9,6 +10,7 @@ import 'package:e_commerce_application/presentation/ui/admin/admin_products.dart
 import 'package:e_commerce_application/presentation/ui/admin/admin_profile.dart';
 import 'package:e_commerce_application/presentation/ui/login.dart';
 import 'package:e_commerce_application/presentation/ui/signup.dart';
+import 'package:e_commerce_application/presentation/ui/user/user_cart.dart';
 import 'package:e_commerce_application/presentation/ui/user/user_landing.dart';
 import 'package:e_commerce_application/presentation/ui/user/user_product_details_page.dart';
 import 'package:e_commerce_application/presentation/ui/wrapper.dart';
@@ -147,7 +149,19 @@ class MyAppRouter {
           path: '/userlandingPage',
           name: MyAppRouteConstants.userLandingPage,
           builder: (BuildContext context, GoRouterState state) {
-            return UserLandingPage();
+            return BlocProvider<UserCartBloc>(
+              create: (_) => UserCartBloc(),
+              child: UserLandingPage(),
+            );
+          }),
+      GoRoute(
+          path: '/userCartDetails',
+          name: MyAppRouteConstants.userCartDetails,
+          builder: (BuildContext context, GoRouterState state) {
+            return BlocProvider<UserCartBloc>(
+              create: (_) => UserCartBloc(),
+              child: UserCart(),
+            );
           })
     ],
   );

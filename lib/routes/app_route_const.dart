@@ -11,4 +11,5 @@ class MyAppRouteConstants {
   static const String adminEditProductForm = 'adminEditProductForm';
   static const String userLandingPage = 'userlandingPage';
   static const String userProdDetails = 'userProdDetails';
+  static const String userCartDetails = 'userCartDetails';
 }

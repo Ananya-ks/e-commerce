@@ -95,7 +95,6 @@ class AdminProductFormBloc
       for(var doc in allProdCollection.docs){
         await doc.reference.delete();
       }
-
       
       List<String> productUrls = [];
       for (var doc in productCollection.docs) {

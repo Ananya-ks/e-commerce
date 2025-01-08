@@ -2,10 +2,10 @@ part of 'user_cart_bloc.dart';
 
 sealed class UserCartEvent {}
 
-class UserCartButtonClicked extends UserCartEvent {
+class UserAddToCartButtonClicked extends UserCartEvent {
   final GlobalProductModel globalProductModel;
 
-  UserCartButtonClicked({required this.globalProductModel});
+  UserAddToCartButtonClicked({required this.globalProductModel});
 }
 
 class UserCartQuantityIncreaseButtonClickedEvent extends UserCartEvent {
@@ -25,3 +25,5 @@ class UserCartDeletebuttonClickedEvent extends UserCartEvent {
 
   UserCartDeletebuttonClickedEvent({required this.docId});
 }
+
+class UserCartPageClickedEvent extends UserCartEvent {}

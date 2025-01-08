@@ -26,3 +26,8 @@ class UserCartDeletionErrorState extends UserCartState {
   String errorMessage;
   UserCartDeletionErrorState({required this.errorMessage});
 }
+
+class UserCartTotalCheckOutAmt extends UserCartState {
+  num totalCheckoutAmt;
+  UserCartTotalCheckOutAmt({required this.totalCheckoutAmt});
+}

@@ -29,6 +29,8 @@ class _UserProductDetailsPageState extends State<UserProductDetailsPage> {
           context.pushNamed(MyAppRouteConstants.userLandingPage);
         } else if (state is UserCartAddUploadErrorState) {
           Fluttertoast.showToast(msg: state.errorMessage);
+        } else if (state is UserCartAddUploadErrorState) {
+          Fluttertoast.showToast(msg: state.errorMessage);
         }
       },
       builder: (context, state) {
@@ -81,13 +83,13 @@ class _UserProductDetailsPageState extends State<UserProductDetailsPage> {
                       onPressed: () {
                         final globalProductModel =
                             GlobalProductModel.fromJson(widget.product);
-                        userCartBloc.add(UserCartButtonClicked(
+                        userCartBloc.add(UserAddToCartButtonClicked(
                             globalProductModel: globalProductModel));
                       },
                       style: ButtonStyle(
                           fixedSize: WidgetStateProperty.all(Size(200, 50)),
                           backgroundColor:
-                              WidgetStateProperty.all(Colors.grey)),
+                              WidgetStateProperty.all(Colors.brown.shade300)),
                       child: Text(
                         'Add to cart',
                         style: TextStyle(

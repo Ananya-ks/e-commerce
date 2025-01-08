@@ -54,17 +54,6 @@ class _WrapperState extends State<Wrapper> {
             ),
           );
         }
-        // else if (state is AuthAdminLoginSuccessState) {
-        //   final adminEmail = state.user!.email;
-        //   print('admin mail is : $adminEmail');
-        //   GoRouter.of(context).goNamed(
-        //     MyAppRouteConstants.adminLandingPage,
-        //     extra: AdminProductFormBloc(
-        //       firestore: FirebaseFirestore.instance,
-        //       adminEmail: adminEmail!,
-        //     ),
-        //   );
-        // }
         return StreamBuilder(
           stream: FirebaseAuth.instance.authStateChanges(),
           builder: (context, snapshot) {

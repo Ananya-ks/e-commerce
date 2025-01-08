@@ -13,6 +13,8 @@ class UserHome extends StatefulWidget {
 class _UserHomeState extends State<UserHome> {
   @override
   Widget build(BuildContext context) {
+    // final userCartBloc = BlocProvider.of<UserCartBloc>(context);
+
     return Scaffold(
       body: StreamBuilder(
           stream: FirebaseFirestore.instance.collection('products').snapshots(),
