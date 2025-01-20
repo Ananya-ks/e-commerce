@@ -80,7 +80,7 @@ class AuthService {
         await _firestore.collection('users').doc(user.uid).set({
           'email': user.email,
           'name': user.displayName,
-        });
+        }); 
       }
       return userCredential;
     } catch (e) {

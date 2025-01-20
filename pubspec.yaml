@@ -49,6 +49,7 @@ dependencies:
   equatable: ^2.0.7
   fluttertoast: any
   carousel_slider: ^5.0.0
+  image_picker: ^1.1.2
 
 
 
