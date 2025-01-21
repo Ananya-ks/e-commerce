@@ -25,14 +25,14 @@ class AuthService {
   }
 
   Future<User?> createUserWithEmailAndpassword(
-      String email, String password) async {
+      String email, String password, String userName) async {
     return _authenticate(() async {
       final credentials = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
       await _firestore
           .collection('users')
           .doc(credentials.user?.uid)
-          .set({'email': email, 'password': password});
+          .set({'name': userName, 'email': email, 'password': password});
       return credentials;
     });
   }
@@ -80,7 +80,8 @@ class AuthService {
         await _firestore.collection('users').doc(user.uid).set({
           'email': user.email,
           'name': user.displayName,
-        }); 
+          'photoUrl': user.photoURL,
+        });
       }
       return userCredential;
     } catch (e) {

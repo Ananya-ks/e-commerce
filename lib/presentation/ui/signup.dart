@@ -96,6 +96,7 @@ class _SignUpState extends State<SignUp> {
                   fontColor: Colors.brown.shade800,
                   onPressed: () {
                     authBloc.add(AuthUserCreationLoginButtonClickEvent(
+                        userName: userNameController.text,
                         email: emailController.text,
                         password: passwordController.text));
                   },

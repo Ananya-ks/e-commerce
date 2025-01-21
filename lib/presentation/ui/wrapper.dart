@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_commerce_application/presentation/blocs/admin_product/admin_product_form_bloc.dart';
 import 'package:e_commerce_application/presentation/blocs/auth/auth_bloc.dart';
 import 'package:e_commerce_application/presentation/ui/admin/admin_landing.dart';
-import 'package:e_commerce_application/presentation/ui/email_verification.dart';
+// import 'package:e_commerce_application/presentation/ui/email_verification.dart';
 import 'package:e_commerce_application/presentation/ui/landing.dart';
 import 'package:e_commerce_application/presentation/ui/user/user_landing.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -74,9 +74,9 @@ class _WrapperState extends State<Wrapper> {
                 final user = snapshot.data!;
                 print('User email is ${user.email}');
 
-                if ((!user.emailVerified)) {
-                  return EmailVerificationScreen();
-                }
+                // if ((!user.emailVerified)) {
+                //   return EmailVerificationScreen();
+                // }
 
                 // Check if the user is an admin or regular user
                 return FutureBuilder<bool>(

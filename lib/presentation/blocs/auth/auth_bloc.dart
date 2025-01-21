@@ -43,7 +43,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
     try {
       final user = await auth.createUserWithEmailAndpassword(
-          event.email, event.password);
+          event.email, event.password, event.userName);
       if (user != null) {
         await Future.sync(() => add(AuthUserEmailVerificationEvent()));
       }
