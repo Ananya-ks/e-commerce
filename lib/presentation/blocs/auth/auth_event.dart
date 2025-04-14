@@ -4,11 +4,12 @@ part of 'auth_bloc.dart';
 sealed class AuthEvent {}
 
 class AuthUserCreationLoginButtonClickEvent extends AuthEvent {
+  final String userName;
   final String email;
   final String password;
 
   AuthUserCreationLoginButtonClickEvent(
-      {required this.email, required this.password});
+      {required this.userName, required this.email, required this.password});
 }
 
 class AuthUserLoginEvent extends AuthEvent {
@@ -28,5 +29,5 @@ class AuthAdminLoginEvent extends AuthEvent {
   final String email;
   final String password;
 
-  AuthAdminLoginEvent( {required this.email, required this.password});
+  AuthAdminLoginEvent({required this.email, required this.password});
 }

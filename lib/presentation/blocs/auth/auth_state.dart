@@ -41,7 +41,10 @@ class AuthGoogleLoginErrorActionState extends AuthActionState {}
 
 class AuthAdminLoginLoadingState extends AuthActionState {}
 
-class AuthAdminLoginSuccessState extends AuthActionState {}
+class AuthAdminLoginSuccessState extends AuthActionState {
+  final User? user;
+  AuthAdminLoginSuccessState({ required this.user});
+}
 
 class AuthAdminLoginErrorState extends AuthActionState {
   final String message;

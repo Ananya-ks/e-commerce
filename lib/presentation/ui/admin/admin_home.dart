@@ -12,7 +12,9 @@ class _AdminHomePageState extends State<AdminHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Text('admin home'),
+        child: Center(
+          child: Text('admin home'),
+        ),
       ),
     );
   }
